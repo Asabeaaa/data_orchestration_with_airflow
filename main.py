@@ -1,7 +1,6 @@
 from process_transaction import Transaction
 from dotenv import load_dotenv
 import os
-import pandas as pd
 from database.helper import UpdateDB
 
 
@@ -18,7 +17,8 @@ def main():
 
     # push data to db
     db_process = UpdateDB()
-    df[0:1].apply(lambda row: db_process.update_pg_db(row), axis=1)
+
+    df.apply(lambda row: db_process.insert_user(row), axis=1)
 
 
 if __name__ == "__main__":
