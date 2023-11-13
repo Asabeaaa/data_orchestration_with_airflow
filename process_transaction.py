@@ -12,7 +12,10 @@ class Transaction():
         return df
 
     def process_trxns(self, df: pd.DataFrame) -> pd.DataFrame:
+        # convert date to unix timestamp
         df.date = pd.to_datetime(df.date, errors="ignore")
         df.date = df.date.apply(lambda row: self.unix_timestamp_in_ms(row))
-        print(df)
+
+        # convert timestamp of agent phone number
+        df.agentPhoneNumber = df.agentPhoneNumber.astype(str)
         return df
