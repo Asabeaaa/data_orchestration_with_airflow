@@ -13,7 +13,12 @@ def main():
 
     # prepare transactions for db
     df = transactions.process_trxns(
-        transactions.retrieve_trxns(os.getenv("TRXN_FILE_URL")))
+        transactions.retrieve_trxns(os.getenv("TRXN_FILE_URL")), ['date', 'externalId', 'agentPhoneNumber',
+                                                                  'transactionType', 'amount', 'balance',
+                                                                  'receiverPhoneNumber', 'commission',
+                                                                  'status', 'source'])
+
+    df = df[0:5]
 
     # push data to db
     db_process = UpdateDB()

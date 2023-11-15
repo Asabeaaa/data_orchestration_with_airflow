@@ -24,10 +24,15 @@ class Transaction():
             log(f"An error occured while retrieving transaction data, error:{e}",
                 logging.ERROR, logging.error)
 
-    def process_trxns(self, df: pd.DataFrame) -> pd.DataFrame:
+    def process_trxns(self, df: pd.DataFrame, columns: list) -> pd.DataFrame:
         try:
             log("Processing retrieved transactions",
                 logging.INFO, logging.info)
+
+            # checking missing column issues
+            for column in columns:
+                if column not in df.columns:
+                    df[column] = None
 
             # convert date to unix timestamp
             log("Converting date to unix timestamp in ms",
@@ -36,6 +41,8 @@ class Transaction():
             df.date = df.date.apply(lambda row: self.unix_timestamp_in_ms(row))
 
             # convert timestamp of agent phone number
+            log("Type casting agent phone number to string",
+                logging.INFO, logging.info)
             df.agentPhoneNumber = df.agentPhoneNumber.astype(str)
             return df
         except Exception as e:
