@@ -67,10 +67,11 @@ class UpdateDB(Connector):
             session.commit()
 
             # insert transaction
-            self.insert_transaction(row, new_user_uuid)
+            response = self.insert_transaction(row, new_user_uuid)
 
-            # update user transaction to 1
-            self.update_user_transaction(1, new_user_uuid)
+            if response:
+                # update user transaction to 1
+                self.update_user_transaction(1, new_user_uuid)
 
         except Exception as e:
             if "duplicate key value violates unique constraint" in str(e):
@@ -86,11 +87,12 @@ class UpdateDB(Connector):
                 number_of_user_trnxs = user[0]["nTransactions"]
 
                 # insert transaction
-                self.insert_transaction(row, old_user_uuid)
+                response = self.insert_transaction(row, old_user_uuid)
 
-                # update user transaction + 1
-                self.update_user_transaction(
-                    number_of_user_trnxs + 1, old_user_uuid)
+                if response:
+                    # update user transaction + 1
+                    self.update_user_transaction(
+                        number_of_user_trnxs + 1, old_user_uuid)
 
             else:
                 log(
@@ -113,10 +115,13 @@ class UpdateDB(Connector):
             new_transaction = Transaction(mobile=row["receiverPhoneNumber"], commission=row["commission"],
                                           balance=row["balance"], amount=row["amount"], externalId=row["externalId"],
                                           requestTimestamp=row["date"], updateTimestamp=row["date"],
-                                          userUuid=user_uuid, uuid=new_transaction_uuid)
+                                          userUuid=user_uuid, uuid=new_transaction_uuid, category=row[
+                                              "transactionType"],
+                                          status=row["status"], source=row["source"])
 
             session.add(new_transaction)
             session.commit()
+            return "Transaction inserted"
 
         except Exception as e:
             log(
