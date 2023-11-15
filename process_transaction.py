@@ -2,6 +2,7 @@ import pandas as pd
 import time
 from logs import log
 import logging
+from database.helper import UpdateDB
 
 
 class Transaction():
@@ -44,7 +45,13 @@ class Transaction():
             log("Type casting agent phone number to string",
                 logging.INFO, logging.info)
             df.agentPhoneNumber = df.agentPhoneNumber.astype(str)
-            return df
+
+            df = df[0:5]
+
+            # push data to db
+            db_process = UpdateDB()
+
+            df.apply(lambda row: db_process.insert_user(row), axis=1)
         except Exception as e:
             log(f"An error occured while processing transaction data, error:{e}",
                 logging.ERROR, logging.error)
