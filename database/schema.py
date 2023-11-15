@@ -20,7 +20,7 @@ class User(Base):
 class Transaction(Base):
     __tablename__ = 'transaction'
 
-    uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    uuid = Column(UUID(as_uuid=True), primary_key=True)
     mobile = Column(String)
     status = Column(String)
     category = Column(String)
