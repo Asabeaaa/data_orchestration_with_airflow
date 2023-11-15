@@ -5,12 +5,16 @@ from typing import Dict, List
 from sqlalchemy import select
 import pandas as pd
 import uuid
-from sqlalchemy import update
+from logs import log
+import logging
 
 
 class UpdateDB(Connector):
     def retrieve_from_db(self, stmt: str) -> List[Dict[str, any]]:
         try:
+            log(
+                f"Retrieving data from db", logging.INFO, logging.info)
+
             factory = sessionmaker(bind=self.pg_engine)
             session = factory()
             results = session.execute(stmt)
@@ -18,13 +22,16 @@ class UpdateDB(Connector):
             return results
 
         except Exception as e:
-            print(f"Error: {e}")
+            log(
+                f"An error occured while retrieving data from the database, error:{e}", logging.ERROR, logging.error)
 
         finally:
             session.close()
 
     def update_user_transaction(self, number_of_transactions: int, user_uuid: uuid.uuid4):
         try:
+            log(
+                f"Updating number of transactions for user: {user_uuid} to {number_of_transactions}", logging.INFO, logging.info)
             factory = sessionmaker(bind=self.pg_engine)
             session = factory()
             session.query(User).filter(User.uuid == user_uuid).update(
@@ -32,20 +39,29 @@ class UpdateDB(Connector):
             session.commit()
 
         except Exception as e:
-            print(f"Error: {e}")
+            log(
+                f"An error occured while updating user number of transactions, error:{e}", logging.ERROR, logging.error)
 
         finally:
             session.close()
 
     def insert_user(self, row: pd.Series):
         try:
+            log(
+                "Processing data for db", logging.INFO, logging.info)
+
             factory = sessionmaker(bind=self.pg_engine)
             session = factory()
 
             # insert new user
             new_user_uuid = uuid.uuid4()
+            agent_number = row["agentPhoneNumber"]
+
+            log(
+                f"Inserting in db user: {new_user_uuid}, phone number: {agent_number}", logging.INFO, logging.info)
+
             new_user = User(
-                phoneNumber=row["agentPhoneNumber"], nTransactions=0, uuid=new_user_uuid)
+                phoneNumber=agent_number, nTransactions=0, uuid=new_user_uuid)
 
             session.add(new_user)
             session.commit()
@@ -58,11 +74,13 @@ class UpdateDB(Connector):
 
         except Exception as e:
             if "duplicate key value violates unique constraint" in str(e):
-                print("User already exists")
+
+                log(f"User with phone number: {agent_number} already exists",
+                    logging.INFO, logging.info)
 
                 # retrieve user with that phone number
                 user = self.retrieve_from_db(stmt=select(User.uuid, User.nTransactions).where(
-                    User.phoneNumber == row["agentPhoneNumber"]))
+                    User.phoneNumber == agent_number))
 
                 old_user_uuid = user[0]["uuid"]
                 number_of_user_trnxs = user[0]["nTransactions"]
@@ -75,13 +93,19 @@ class UpdateDB(Connector):
                     number_of_user_trnxs + 1, old_user_uuid)
 
             else:
-                print(f"Error:{e}")
+                log(
+                    f"An error occured while processing user and transaction data for db, error:{e}", logging.ERROR, logging.error)
 
         finally:
             session.close()
 
     def insert_transaction(self, row: pd.Series, user_uuid: uuid.uuid4):
         try:
+            new_transaction_uuid = uuid.uuid4()
+
+            log(f"Inserting transaction:{new_transaction_uuid} for user: {user_uuid}",
+                logging.INFO, logging.info)
+
             factory = sessionmaker(bind=self.pg_engine)
             session = factory()
 
@@ -89,13 +113,14 @@ class UpdateDB(Connector):
             new_transaction = Transaction(mobile=row["receiverPhoneNumber"], commission=row["commission"],
                                           balance=row["balance"], amount=row["amount"], externalId=row["externalId"],
                                           requestTimestamp=row["date"], updateTimestamp=row["date"],
-                                          userUuid=user_uuid)
+                                          userUuid=user_uuid, uuid=new_transaction_uuid)
 
             session.add(new_transaction)
             session.commit()
 
         except Exception as e:
-            print(f"Error:{e}")
+            log(
+                f"An error occured while inserting transaction data to db, error:{e}", logging.ERROR, logging.error)
 
         finally:
             session.close()
