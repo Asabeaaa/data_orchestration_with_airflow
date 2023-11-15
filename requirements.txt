@@ -3,3 +3,4 @@ python-dotenv==1.0.0
 sqlalchemy==1.4.46
 psycopg2-binary==2.9.9
 sqlalchemy.orm==1.2.10
+logging==0.4.9.6
