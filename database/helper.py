@@ -7,6 +7,7 @@ import pandas as pd
 import uuid
 from logs import log
 import logging
+from datetime import datetime
 
 
 class UpdateDB(Connector):
@@ -35,7 +36,7 @@ class UpdateDB(Connector):
             factory = sessionmaker(bind=self.pg_engine)
             session = factory()
             session.query(User).filter(User.uuid == user_uuid).update(
-                {"nTransactions": number_of_transactions})
+                {"nTransactions": number_of_transactions, "updatedAt": datetime.now()})
             session.commit()
 
         except Exception as e:
