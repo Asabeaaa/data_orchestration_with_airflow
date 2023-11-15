@@ -42,9 +42,12 @@ class Transaction():
             df.date = df.date.apply(lambda row: self.unix_timestamp_in_ms(row))
 
             # convert timestamp of agent phone number
-            log("Type casting agent phone number to string",
+            log("Type casting columns",
                 logging.INFO, logging.info)
             df.agentPhoneNumber = df.agentPhoneNumber.astype(str)
+            df.balance = df.balance.astype(float)
+            df.amount = df.amount.astype(float)
+            df.commission = df.commission.astype(float)
 
             df = df[0:5]
 
