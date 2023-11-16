@@ -49,12 +49,8 @@ class Transaction():
             df.amount = df.amount.astype(float)
             df.commission = df.commission.astype(float)
 
-            df = df[0:5]
+            return df
 
-            # push data to db
-            db_process = UpdateDB()
-
-            df.apply(lambda row: db_process.insert_user(row), axis=1)
         except Exception as e:
             log(f"An error occured while processing transaction data, error:{e}",
                 logging.ERROR, logging.error)
