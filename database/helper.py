@@ -95,6 +95,8 @@ class UpdateDB(Connector):
                     self.update_user_transaction(
                         number_of_user_trnxs + 1, old_user_uuid)
 
+                    return "Transaction processed"
+
             else:
                 log(
                     f"An error occured while processing user and transaction data for db, error:{e}", logging.ERROR, logging.error)
