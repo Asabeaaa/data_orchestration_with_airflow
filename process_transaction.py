@@ -2,7 +2,6 @@ import pandas as pd
 import time
 from logs import log
 import logging
-from database.helper import UpdateDB
 
 
 class Transaction():
