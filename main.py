@@ -2,6 +2,7 @@ from process_transaction import Transaction
 from dotenv import load_dotenv
 import os
 from database.helper import UpdateDB
+import pandas as pd
 
 
 def main():
@@ -18,12 +19,14 @@ def main():
                                                                   'receiverPhoneNumber', 'commission',
                                                                   'status', 'source'])
 
-    df = df[0:5]
+    if type(df) == pd.DataFrame:
+        if df.empty != True:
+            df = df[0:5]
 
-    # push data to db
-    db_process = UpdateDB()
+            # push data to db
+            db_process = UpdateDB()
 
-    df.apply(lambda row: db_process.insert_user(row), axis=1)
+            df.apply(lambda row: db_process.insert_user(row), axis=1)
 
 
 if __name__ == "__main__":

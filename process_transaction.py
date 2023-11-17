@@ -2,16 +2,20 @@ import pandas as pd
 import time
 from logs import log
 import logging
+from datetime import datetime
 
 
 class Transaction():
-    def unix_timestamp_in_ms(self, timestamp):
+    def unix_timestamp_in_ms(self, datetime_str):
         try:
-            unix_timestamp_ms = time.mktime(timestamp.timetuple()) * 1000
-            return unix_timestamp_ms
+            datetime_object = datetime.strptime(
+                datetime_str, '%Y-%m-%d %H:%M:%S')
+            unix_timestamp_ms = time.mktime(datetime_object.timetuple()) * 1000
+
+            return int(unix_timestamp_ms)
         except Exception as e:
             log(
-                f"An error occured while converting date;{timestamp}, to unix timestamp in ms, error:{e}", logging.ERROR, logging.error)
+                f"An error occured while converting date;{datetime_object}, to unix timestamp in ms, error:{e}", logging.ERROR, logging.error)
 
     def retrieve_trxns(self, file_path: str) -> pd.DataFrame:
         try:
@@ -37,7 +41,8 @@ class Transaction():
             # convert date to unix timestamp
             log("Converting date to unix timestamp in ms",
                 logging.INFO, logging.info)
-            df.date = pd.to_datetime(df.date, errors="ignore")
+
+            # df.date = pd.to_datetime(df.date, errors="ignore")
             df.date = df.date.apply(lambda row: self.unix_timestamp_in_ms(row))
 
             # convert timestamp of agent phone number
