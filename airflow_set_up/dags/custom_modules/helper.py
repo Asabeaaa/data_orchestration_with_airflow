@@ -56,9 +56,9 @@ def update_user_transaction(number_of_transactions: int, user_uuid: uuid.uuid4,
 
 
 def insert_user(row: pd.Series, db_user: str, db_host: str, db_pw: str, db_name: str):
+    db_conn = Connector(db_user, db_host, db_pw, db_name)
+    pg_engine = db_conn.get_pg_engine()
     try:
-        db_conn = Connector(db_user, db_host, db_pw, db_name)
-        pg_engine = db_conn.get_pg_engine()
 
         log(
             "Processing data for db", logging.INFO, logging.info)
@@ -80,11 +80,13 @@ def insert_user(row: pd.Series, db_user: str, db_host: str, db_pw: str, db_name:
         session.commit()
 
         # insert transaction
-        response = insert_transaction(row, new_user_uuid)
+        response = insert_transaction(
+            row, new_user_uuid, db_user, db_host, db_pw, db_name)
 
         if response:
             # update user transaction to 1
-            update_user_transaction(1, new_user_uuid)
+            update_user_transaction(
+                1, new_user_uuid, db_user, db_host, db_pw, db_name)
 
     except Exception as e:
         if "duplicate key value violates unique constraint" in str(e):
@@ -93,19 +95,20 @@ def insert_user(row: pd.Series, db_user: str, db_host: str, db_pw: str, db_name:
                 logging.INFO, logging.info)
 
             # retrieve user with that phone number
-            user = retrieve_from_db(stmt=select(User.uuid, User.nTransactions).where(
-                User.phoneNumber == agent_number))
+            user = retrieve_from_db(select(User.uuid, User.nTransactions).where(
+                User.phoneNumber == agent_number), db_user, db_host, db_pw, db_name)
 
             old_user_uuid = user[0]["uuid"]
             number_of_user_trnxs = user[0]["nTransactions"]
 
             # insert transaction
-            response = insert_transaction(row, old_user_uuid)
+            response = insert_transaction(
+                row, old_user_uuid, db_user, db_host, db_pw, db_name)
 
             if response:
                 # update user transaction + 1
                 update_user_transaction(
-                    number_of_user_trnxs + 1, old_user_uuid)
+                    number_of_user_trnxs + 1, old_user_uuid, db_user, db_host, db_pw, db_name)
 
                 return "Transaction processed"
 
