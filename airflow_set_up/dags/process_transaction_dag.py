@@ -15,6 +15,10 @@ default_args = {
     'start_date': datetime(2023, 11, 16),
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
+    'schedule_interval': '@daily',
+    'data_interval_start': datetime(2023, 11, 17, 9, 0, 0),
+    'data_interval_end': datetime(2023, 11, 17, 13, 0, 0),
+    'schedule': timedelta(days=4),
 
 }
 
