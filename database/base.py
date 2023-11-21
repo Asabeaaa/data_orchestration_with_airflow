@@ -5,6 +5,8 @@ import logging
 
 
 class Connector:
+    """Database connection"""
+
     def __init__(self):
         log("Initializing database engine and connection",
             logging.INFO, logging.info)

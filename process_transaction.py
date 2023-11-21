@@ -6,6 +6,8 @@ from datetime import datetime
 
 
 class Transaction():
+    """ Retrieve and process transaction data"""
+
     def unix_timestamp_in_ms(self, datetime_str):
         try:
             datetime_object = datetime.strptime(
