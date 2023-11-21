@@ -1,8 +1,8 @@
 from process_transaction import Transaction
 from dotenv import load_dotenv
 import os
-import pandas as pd
 from database.helper import UpdateDB
+import pandas as pd
 
 
 def main():
@@ -14,11 +14,19 @@ def main():
 
     # prepare transactions for db
     df = transactions.process_trxns(
-        transactions.retrieve_trxns(os.getenv("TRXN_FILE_URL")))
+        transactions.retrieve_trxns(os.getenv("TRXN_FILE_URL")), ['date', 'externalId', 'agentPhoneNumber',
+                                                                  'transactionType', 'amount', 'balance',
+                                                                  'receiverPhoneNumber', 'commission',
+                                                                  'status', 'source'])
 
-    # push data to db
-    db_process = UpdateDB()
-    df[0:1].apply(lambda row: db_process.update_pg_db(row), axis=1)
+    if type(df) == pd.DataFrame:
+        if df.empty != True:
+            df = df[0:5]
+
+            # push data to db
+            db_process = UpdateDB()
+
+            df.apply(lambda row: db_process.insert_user(row), axis=1)
 
 
 if __name__ == "__main__":
