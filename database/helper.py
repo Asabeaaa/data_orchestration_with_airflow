@@ -11,6 +11,8 @@ from datetime import datetime
 
 
 class UpdateDB(Connector):
+    """ Update db with user and transaction data"""
+
     def retrieve_from_db(self, stmt: str) -> List[Dict[str, any]]:
         try:
             log(
