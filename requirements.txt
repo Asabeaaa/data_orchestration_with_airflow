@@ -4,4 +4,4 @@ sqlalchemy==1.4.46
 psycopg2-binary==2.9.9
 sqlalchemy.orm==1.2.10
 logging==0.4.9.6
-apache-airflow==2.7.3
+apache-airflow==2.8.1
